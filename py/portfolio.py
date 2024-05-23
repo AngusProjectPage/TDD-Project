@@ -15,7 +15,11 @@ class Portfolio:
         return Money(total, currency)
     
     def __convert(self, money, currency):
+        exchangeRates = dict()
+        exchangeRates.update({"USD->KRW":1100})
+        exchangeRates.update({"EUR->USD":1.2}) 
         if(money.currency == currency):
             return money.amount 
-        return money.amount * self._eur_to_usd
+        key = money.currency + "->" + currency 
+        return exchangeRates.get(key) * money.amount
         
