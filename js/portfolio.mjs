@@ -7,20 +7,20 @@ export class Portfolio {
   add(...moneys) {
     this.moneys = this.moneys.concat(moneys);
   }
-  evaluate(currency) {
+  evaluate(bank, currency) {
+    let failures = [];
     let total = this.moneys.reduce((sum, money) => {
-      return sum + this.convert(money, currency);
+      try {
+        let convertedAmount = bank.convert(money, currency);
+        return sum + convertedAmount.amount;
+      } catch (error) {
+        failures.push(error.message);
+        return sum;
+      }
     }, 0);
-    return new Money(total, currency);
-  }
-  convert(money, currency) {
-    let exchangeRates = new Map();
-    exchangeRates.set("EUR->USD", 1.2);
-    exchangeRates.set("USD->KRW", 1100);
-    if (money.currency === currency) {
-      return money.amount;
+    if (!failures.length) {
+      return new Money(total, currency);
     }
-    let key = money.currency + "->" + currency;
-    return money.amount * exchangeRates.get(key);
+    throw new Error("Missing exchange rate(s):[" + failures.join() + "]");
   }
 }
